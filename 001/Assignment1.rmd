@@ -1,0 +1,39 @@
+---
+title: "Practical Machine Learning - Prediction Assignment"
+author: "Michael Teferra"
+date: "July 25, 2014"
+output: html_document
+---
+
+The data for this project come from this source: http://groupware.les.inf.puc-rio.br/har. 
+
+```{r}
+library(caret)
+library(randomForest)
+
+## load the data
+training <- read.csv("pml-training.csv")
+testing <- read.csv("pml-testing.csv")
+
+## filter out columns with lots of NA values
+cols <- ncol(training)
+rows <- nrow(training)
+colsUsed <- c((colSums(is.na(training[,-cols])) >= 0.4*rows), cols)
+
+training <- training[, colsUsed]
+testing <- testing[, colsUsed]
+```
+
+Create a model using randomForest with cross-validation
+
+```{r}
+modrf <- train(classe ~., data=training, trControl=trainControl(method="cv"), method="rf")
+modrf
+```
+
+Predict with the test data
+```{r}
+pred <- predict(modrf, testing)
+pred
+```
+
